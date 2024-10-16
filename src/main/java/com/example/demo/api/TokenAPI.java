@@ -26,9 +26,7 @@ import com.example.demo.service.TokenService;
 @RequestMapping("/token")
 public class TokenAPI {
 
-    @Autowired TokenService tokenService;
-    @Autowired CustomerRepository repo;
-    public String appUserToken;
+    public  static Token appUserToken;
 
     @GetMapping
     public String getAll(){
@@ -44,7 +42,7 @@ public class TokenAPI {
 
         //validate input
         if(name != null && password != null && checkPass(name,password)) {
-            String token = tokenService.generateAccessToken(name);
+            Token token = createToken(name);
             return ResponseEntity.ok(token);
         }
         
@@ -66,9 +64,15 @@ public class TokenAPI {
 		return false;
     }
 
-    public String getAppUserToken() {
-		if(appUserToken == null || appUserToken == null || appUserToken.length() == 0) {
-			appUserToken = tokenService.generateAccessToken("ApiClientApp");
+    private static Token createToken(String name){
+
+        String token_string = TokenService.generateAccessToken(name);
+        return new Token(token_string);
+    }
+
+    public static Token getAppUserToken() {
+		if(appUserToken == null || appUserToken == null || appUserToken.getToken().length() == 0) {
+			appUserToken = createToken("ApiClientApp");
 		}
 		return appUserToken;
 	}
@@ -80,7 +84,7 @@ public class TokenAPI {
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("GET");
 			conn.setRequestProperty("Accept", "application/json");
-			Token token = new Token(getAppUserToken());
+			Token token = getAppUserToken();
 			conn.setRequestProperty("authorization", "Bearer " + token.getToken());
 
 			if (conn.getResponseCode() != 200) {

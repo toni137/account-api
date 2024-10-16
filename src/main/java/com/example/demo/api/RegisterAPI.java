@@ -26,7 +26,7 @@ import com.example.demo.api.TokenAPI;
 @RestController
 @RequestMapping("/register")
 public class RegisterAPI {
-    @Autowired TokenAPI tokenAPI;
+  
     
 	@PostMapping
 	public ResponseEntity<?> registerCustomer(@RequestBody Customer newCustomer, UriComponentsBuilder uri) {
@@ -56,7 +56,7 @@ public class RegisterAPI {
 			conn.setDoOutput(true);
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Content-Type", "application/json");
-	  		String token = tokenAPI.getAppUserToken();
+	  		Token token = TokenAPI.getAppUserToken();
 	  		conn.setRequestProperty("authorization", "Bearer " + token);
 	  		// conn.setRequestProperty("tokencheck", "false");
 
