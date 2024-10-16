@@ -1,1 +1,0 @@
-The Account API for the backend spring boot app.
