@@ -1,3 +1,4 @@
+INSERT INTO CUSTOMERS (NAME, EMAIL, PASSWORD) VALUES ('ApiClientApp', 'test@test', 'secret');
 INSERT INTO CUSTOMERS (NAME, EMAIL, PASSWORD) VALUES ('Ulrikaumeko Duddle', 'ududdle0@ftc.gov', 'dQ2=?O4gZE');
 insert into CUSTOMERS (name, email, password) values ('Christan Ballaam', 'cballaam1@yahoo.com', 'eA1)c1,+I73');
 insert into CUSTOMERS (name, email, password) values ('Kelby Leiden', 'kleiden2@i2i.jp', 'tJ3!`R_XaL<');

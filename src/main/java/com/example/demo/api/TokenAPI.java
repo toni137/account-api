@@ -1,16 +1,24 @@
 package com.example.demo.api;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Iterator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.domain.Customer;
+import com.example.demo.domain.CustomerFactory;
+import com.example.demo.domain.Token;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.service.TokenService;
 
@@ -20,6 +28,13 @@ public class TokenAPI {
 
     @Autowired TokenService tokenService;
     @Autowired CustomerRepository repo;
+    public String appUserToken;
+
+    @GetMapping
+    public String getAll(){
+        return "fake token";
+    }
+    
 
     @PostMapping
     public ResponseEntity<?> createTokenForCustomer(@RequestBody Customer customer) {
@@ -37,17 +52,60 @@ public class TokenAPI {
     }
 
     public boolean checkPass(String name, String password){
-        /*Iterator<Customer> customerList = repo.findAll().iterator();
-        while(customerList.hasNext()) {
-			Customer cust = customerList.next();
-			if(cust.getName().equals(name) && cust.getPassword().equals(password)) {
-				return true;				
-			}
-        
-        }*/
-        return true;
+        // special case for application user
+		if(name.equals("ApiClientApp") && password.equals("secret")) {
+			return true;
+		}
+		// make call to customer service 
+		Customer cust = getCustomerByNameFromCustomerAPI(name);
+		
+		// compare name and password
+		if(cust != null && cust.getName().equals(name) && cust.getPassword().equals(password)) {
+			return true;				
+		}		
+		return false;
     }
 
+    public String getAppUserToken() {
+		if(appUserToken == null || appUserToken == null || appUserToken.length() == 0) {
+			appUserToken = tokenService.generateAccessToken("ApiClientApp");
+		}
+		return appUserToken;
+	}
+
+    private Customer getCustomerByNameFromCustomerAPI(String username) {
+		try {
+
+			URL url = new URL("http://localhost:8080/api/customers/byname/" + username);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("GET");
+			conn.setRequestProperty("Accept", "application/json");
+			Token token = new Token(getAppUserToken());
+			conn.setRequestProperty("authorization", "Bearer " + token.getToken());
+
+			if (conn.getResponseCode() != 200) {
+				return null;
+			} else {
+				BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+				String output = "";
+				String out = "";
+				while ((out = br.readLine()) != null) {
+					output += out;
+				}
+				conn.disconnect();
+				return CustomerFactory.getCustomer(output);
+			}
+
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			return null;
+
+		} catch (java.io.IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+
+	}  	
     
     
 }
