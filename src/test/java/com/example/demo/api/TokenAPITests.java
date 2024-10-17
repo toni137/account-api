@@ -2,31 +2,43 @@ package com.example.demo.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties.Jwt;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.example.demo.repository.CustomerRepository;
+import com.example.demo.service.TokenService;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureMockMvc
+@WebMvcTest(TokenAPI.class)
 public class TokenAPITests {
     @Autowired  MockMvc mvc;
 
+    @MockBean
+    private CustomerRepository repo;
+
+    @MockBean
+    private TokenService tokenService;
+
     @Test
-    void AccessTokenWithoutAuth() throws Exception{
+    void AccessServiceAPI() throws Exception{
 
         MvcResult result = mvc.perform(get("/token")).andExpect(status().isOk()).andReturn();
         String response = result.getResponse().getContentAsString();
@@ -35,18 +47,28 @@ public class TokenAPITests {
     }
 
     @Test
-    void AccessTokenwithAuth() throws Exception{
-       
-        MvcResult result =
-                mvc.perform(
-                    post("/token")
-                    .with(httpBasic("ApiClientApp", "secret"))
-                )
-                .andExpect(status().isOk())
-                .andReturn();
+    void testCreateTokenForCustomerUnauthorized() throws Exception {
+        // Create customer JSON with incorrect credentials
+        String customerJson = "{\"name\":\"wrong_name\", \"password\":\"wrong_password\"}";
 
-                String encodedToken = result.getResponse().getContentAsString();
-
+        // Perform POST request to create token for customer
+        mvc.perform(post("/token")
+                .content(customerJson)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    void testCreateTokenForCustomerAuthorized() throws Exception {
+        // Create customer JSON with correct credentials
+        String customerJson = "{\"name\":\"ApiClientApp\", \"password\":\"secret\"}";
+
+        // Perform POST request to create token for customer
+        mvc.perform(post("/token")
+                .content(customerJson)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    
 }
