@@ -5,9 +5,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Iterator;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.domain.Customer;
 import com.example.demo.domain.CustomerFactory;
 import com.example.demo.domain.Token;
-import com.example.demo.repository.CustomerRepository;
 import com.example.demo.service.TokenService;
 
 @RestController

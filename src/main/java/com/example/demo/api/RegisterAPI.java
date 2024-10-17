@@ -9,8 +9,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,13 +21,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.example.demo.domain.Customer;
 import com.example.demo.domain.CustomerFactory;
 import com.example.demo.domain.Token;
-import com.example.demo.api.TokenAPI;
 
 @RestController
 @RequestMapping("/register")
 public class RegisterAPI {
   
-    
+
+
 	@PostMapping
 	public ResponseEntity<?> registerCustomer(@RequestBody Customer newCustomer, UriComponentsBuilder uri) {
 		if (newCustomer.getId() != 0 || newCustomer.getName() == null || newCustomer.getEmail() == null) {

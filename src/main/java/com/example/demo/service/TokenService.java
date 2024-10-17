@@ -2,8 +2,6 @@ package com.example.demo.service;
 
 import java.util.Date;
 
-import org.springframework.stereotype.Service;
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
